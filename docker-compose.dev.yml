@@ -1,0 +1,12 @@
+services:
+  tracker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app/app
+      - ./data:/app/data
+    environment:
+      - FLASK_DEBUG=1
