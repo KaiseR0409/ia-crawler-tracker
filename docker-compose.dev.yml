@@ -8,5 +8,3 @@ services:
     volumes:
       - ./app:/app/app
       - ./data:/app/data
-    environment:
-      - FLASK_DEBUG=1

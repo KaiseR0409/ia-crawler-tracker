@@ -1,24 +1,16 @@
 from .database import get_connection, init_db
 from datetime import datetime, timezone
-from fastapi import FastApi, Request
-from pydantic import BaseModel
+from fastapi import FastAPI
+from .models import VisitPayload
+
 
 
 app = FastAPI(title="AI Traffic Tracker", version="0.1.0")
-
 
 #startup event
 @app.on_event("startup")
 def startup():
     init_db()
-    #create a payload visit class with url, atributtes in database
-    class VisitPayload(BaseModel):
-        target_url: str
-        traffic_type: str
-        ai_provider: str = "Unknown"
-        user_agent: str
-        referrer: str = ""
-        ip_hash: str = ""
 
 #post method to add a new track in page
 @app.post("/track")
@@ -40,7 +32,16 @@ def track_visit(payload: VisitPayload):
     conn.commit()
     conn.close()
     return {"status": "ok"}
-    
+
+#get method test, is not to production bc is not secure, is only for test and development
+@app.get("/visits")
+def get_visits():
+    conn = get_connection()
+    cursor = conn.execute("SELECT * FROM visits ORDER BY timestamp DESC")
+    visits = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return {"visits": visits}
+
 
 
 

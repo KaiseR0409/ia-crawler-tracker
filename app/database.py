@@ -1,6 +1,6 @@
 #libraries imports
 import sqlite3
-from pathlib import Patch
+from pathlib import Path
 
 #Path of data base
 DB_PATH = Path("data/tracker.db")
@@ -10,7 +10,7 @@ DB_PATH = Path("data/tracker.db")
 def get_connection():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journald_mode=WAL")
+    conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
     conn.row_factory = sqlite3.Row
     return conn
