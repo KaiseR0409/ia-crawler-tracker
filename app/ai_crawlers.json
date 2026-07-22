@@ -1,0 +1,146 @@
+[
+  {
+    "name": "GPTBot",
+    "operator": "OpenAI",
+    "user_agent_token": "GPTBot",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://platform.openai.com/docs/bots",
+    "notes": "Crawls content used to improve OpenAI models."
+  },
+  {
+    "name": "OAI-SearchBot",
+    "operator": "OpenAI",
+    "user_agent_token": "OAI-SearchBot",
+    "purpose": ["search"],
+    "respects_robots_txt": true,
+    "docs": "https://platform.openai.com/docs/bots",
+    "notes": "Surfaces and links sites in ChatGPT Search results."
+  },
+  {
+    "name": "ChatGPT-User",
+    "operator": "OpenAI",
+    "user_agent_token": "ChatGPT-User",
+    "purpose": ["user-action"],
+    "respects_robots_txt": true,
+    "docs": "https://platform.openai.com/docs/bots",
+    "notes": "Fetches a page when a ChatGPT user explicitly requests it."
+  },
+  {
+    "name": "ClaudeBot",
+    "operator": "Anthropic",
+    "user_agent_token": "ClaudeBot",
+    "purpose": ["training", "search"],
+    "respects_robots_txt": true,
+    "docs": "https://support.anthropic.com",
+    "notes": "Anthropic's web crawler."
+  },
+  {
+    "name": "Claude-User",
+    "operator": "Anthropic",
+    "user_agent_token": "Claude-User",
+    "purpose": ["user-action"],
+    "respects_robots_txt": true,
+    "docs": "https://support.anthropic.com",
+    "notes": "Fetches a page on behalf of a Claude user's explicit request."
+  },
+  {
+    "name": "anthropic-ai",
+    "operator": "Anthropic",
+    "user_agent_token": "anthropic-ai",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://support.anthropic.com",
+    "notes": "Legacy Anthropic agent token; still seen in the wild."
+  },
+  {
+    "name": "PerplexityBot",
+    "operator": "Perplexity",
+    "user_agent_token": "PerplexityBot",
+    "purpose": ["search"],
+    "respects_robots_txt": true,
+    "docs": "https://perplexity.ai/perplexitybot",
+    "notes": "Indexes pages so they can be cited in Perplexity answers."
+  },
+  {
+    "name": "Perplexity-User",
+    "operator": "Perplexity",
+    "user_agent_token": "Perplexity-User",
+    "purpose": ["user-action"],
+    "respects_robots_txt": true,
+    "docs": "https://perplexity.ai/perplexitybot",
+    "notes": "Fetches a page when a Perplexity user's query requires visiting it directly."
+  },
+  {
+    "name": "Google-Extended",
+    "operator": "Google",
+    "user_agent_token": "Google-Extended",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "notes": "Robots.txt token controlling Gemini/Vertex AI training use."
+  },
+  {
+    "name": "Googlebot",
+    "operator": "Google",
+    "user_agent_token": "Googlebot",
+    "purpose": ["search"],
+    "respects_robots_txt": true,
+    "docs": "https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers",
+    "notes": "Google's core search crawler."
+  },
+  {
+    "name": "Applebot",
+    "operator": "Apple",
+    "user_agent_token": "Applebot",
+    "purpose": ["search"],
+    "respects_robots_txt": true,
+    "docs": "https://www.apple.com/go/applebot",
+    "notes": "Powers Siri and Spotlight Suggestions."
+  },
+  {
+    "name": "Applebot-Extended",
+    "operator": "Apple",
+    "user_agent_token": "Applebot-Extended",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://www.apple.com/go/applebot",
+    "notes": "Controls use of crawled data for Apple's generative models."
+  },
+  {
+    "name": "CCBot",
+    "operator": "Common Crawl",
+    "user_agent_token": "CCBot",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://commoncrawl.org/ccbot",
+    "notes": "Common Crawl's crawler. Seeds training data of many LLMs."
+  },
+  {
+    "name": "Amazonbot",
+    "operator": "Amazon",
+    "user_agent_token": "Amazonbot",
+    "purpose": ["search"],
+    "respects_robots_txt": true,
+    "docs": "https://developer.amazon.com/amazonbot",
+    "notes": "Supports Alexa and Amazon answer features."
+  },
+  {
+    "name": "Meta-ExternalAgent",
+    "operator": "Meta",
+    "user_agent_token": "Meta-ExternalAgent",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": "https://developers.facebook.com/docs/sharing/webmasters/web-crawlers",
+    "notes": "Meta's crawler for AI training and related products."
+  },
+  {
+    "name": "Bytespider",
+    "operator": "ByteDance",
+    "user_agent_token": "Bytespider",
+    "purpose": ["training"],
+    "respects_robots_txt": true,
+    "docs": null,
+    "notes": "ByteDance crawler (associated with Doubao)."
+  }
+]

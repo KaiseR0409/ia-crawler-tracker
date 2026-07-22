@@ -23,7 +23,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             timestamp TEXT NOT NULL,
             target_url TEXT NOT NULL,
-            traffic_type TEXT NOT NULL CHECK(traffic_type IN ('crawler', 'referral')),
+            traffic_type TEXT NOT NULL CHECK(traffic_type IN ('crawler', 'referral','unknown')),
             ai_provider TEXT NOT NULL DEFAULT 'Unknown',
             user_agent TEXT NOT NULL,
             referrer TEXT DEFAULT '',
