@@ -1,14 +1,14 @@
 from .database import get_connection, init_db
 from datetime import datetime, timezone
 #fast api imports
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
 #models imports
 from .models import VisitPayload
 #services imports
-from .services import classify_ua, classify_referrer, verify_api_key, get_stats
+from .services import classify_ua, classify_referrer, verify_api_key, get_stats, paginate_rows
 #pathlib import Path
 from pathlib import Path
 #slow api imports
@@ -87,12 +87,8 @@ def track_visit(request:Request, payload: VisitPayload, _: str = Depends(verify_
 #get method test, is not to production bc is not secure, is only for test and development
 @app.get("/visits")
 @limiter.limit("60/minute") # Limit to 60 requests per minute per IP
-def get_visits(request: Request, _: str = Depends(verify_api_key)):
-    conn = get_connection()
-    cursor = conn.execute("SELECT timestamp, target_url, traffic_type, ai_provider, user_agent, referrer FROM visits ORDER BY timestamp DESC")
-    visits = [dict(row) for row in cursor.fetchall()]
-    conn.close()
-    return {"visits": visits}
+def get_visits(request: Request, _: str = Depends(verify_api_key), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
+    return paginate_rows(page=page, limit=limit)
 
 
 #method to give a tracker.js to a page, it dont need api key, its public, but the track method and get visits method need api key to be used, this is for security reasons.

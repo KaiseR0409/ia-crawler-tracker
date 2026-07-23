@@ -85,3 +85,26 @@ def get_stats():
         "by_provider": [dict(row) for row in by_provider],
         "recent_24h": recent
     }
+
+#function to paginate rows 
+def paginate_rows(page: int = 1, limit: int = 10):
+    conn = get_connection()
+    total = conn.execute("SELECT COUNT(*) as total FROM visits").fetchone()["total"] #select total number of rows in visits table
+    offset = (page - 1) * limit # Calculate the offset for the LIMIT clause
+    cursor = conn.execute(
+        "SELECT timestamp, target_url, traffic_type, ai_provider, user_agent, referrer "
+        "FROM visits ORDER BY timestamp DESC LIMIT ? OFFSET ?",
+        (limit, offset)
+    )
+    visits = [dict(row) for row in cursor.fetchall()] # Convert each row to a dictionary
+    conn.close()
+
+    pages = (total + limit -1 ) // limit # Calculate total number of pages
+
+    return {
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "pages": pages,
+        "visits": visits
+    }
