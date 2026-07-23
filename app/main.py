@@ -106,9 +106,8 @@ def get_tracker_js():
 
 #method to give a stats of visits, this method need api key to be used, this is for security reasons.
 @app.get("/stats")
-@limiter.limit("10/minute") # Limit to 10 requests per minute per IP
+@limiter.limit("60/minute") # Limit to 10 requests per minute per IP
 def get_stats_endpoint(request: Request, _: str = Depends(verify_api_key)):
     stats = get_stats()
     return stats
-
 
