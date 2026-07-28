@@ -1,5 +1,6 @@
 #environment variables
 .env
+!.env.example
 
 #database
 data/
@@ -12,3 +13,7 @@ __pycache__/
 #ide
 .vscode/
 .idea/
+
+#context
+
+PLAN_DASHBOARD.md

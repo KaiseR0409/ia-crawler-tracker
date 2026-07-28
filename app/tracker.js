@@ -8,7 +8,7 @@ async function trackVisit(user_agent, target_url, referrer) {
     }
 
     try{
-        const response = await fetch("{{API_URL}}/track", {
+        const response = await fetch("{{API_URL}}/api/track", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

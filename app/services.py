@@ -1,13 +1,18 @@
 import json 
 from .database import get_connection
 from pathlib import Path
-from fastapi import HTTPException, Header
+from fastapi import HTTPException, Header, Depends
+from fastapi.security import APIKeyHeader
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
+
+auth_scheme = APIKeyHeader(name="Authorization")
+
+
 
 AI_REFERRERS = {
     "chatgpt.com": "ChatGPT",
@@ -52,8 +57,7 @@ def classify_referrer(referrer: str) -> str | None:
     return None
 
 #api key verification function
-def verify_api_key(authorization: str = Header(...)):
-    token = authorization.replace("Bearer ", "")
+def verify_api_key(token: str = Depends(auth_scheme)):
     if token != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid API Key")
 

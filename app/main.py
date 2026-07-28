@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, Query
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
+from fastapi.security import APIKeyHeader
 #models imports
 from .models import VisitPayload
 #services imports
@@ -47,7 +48,7 @@ app.state.limiter = limiter
 
 
 #post method to add a new track in page
-@app.post("/track")
+@app.post("/api/track")
 @limiter.limit("30/minute") # Limit to 30 requests per minute per IP
 def track_visit(request:Request, payload: VisitPayload, _: str = Depends(verify_api_key)):
     
@@ -85,7 +86,7 @@ def track_visit(request:Request, payload: VisitPayload, _: str = Depends(verify_
     return {"status": "ok"}
 
 #get method test, is not to production bc is not secure, is only for test and development
-@app.get("/visits")
+@app.get("/api/visits")
 @limiter.limit("60/minute") # Limit to 60 requests per minute per IP
 def get_visits(request: Request, _: str = Depends(verify_api_key), page: int = Query(1, ge=1), limit: int = Query(10, ge=1, le=100)):
     return paginate_rows(page=page, limit=limit)
@@ -93,7 +94,7 @@ def get_visits(request: Request, _: str = Depends(verify_api_key), page: int = Q
 
 #method to give a tracker.js to a page, it dont need api key, its public, but the track method and get visits method need api key to be used, this is for security reasons.
 #this method dont need limiter because is public.
-@app.get("/tracker.js")
+@app.get("/api/tracker.js")
 def get_tracker_js():
     js_path = Path("app/tracker.js")
     js_content = js_path.read_text()
@@ -101,7 +102,7 @@ def get_tracker_js():
     return Response(content=js_content, media_type="application/javascript")
 
 #method to give a stats of visits, this method need api key to be used, this is for security reasons.
-@app.get("/stats")
+@app.get("/api/stats")
 @limiter.limit("60/minute") # Limit to 10 requests per minute per IP
 def get_stats_endpoint(request: Request, _: str = Depends(verify_api_key)):
     stats = get_stats()
