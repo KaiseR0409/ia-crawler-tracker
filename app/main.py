@@ -101,10 +101,11 @@ def get_visits(request: Request, _: str = Depends(verify_access), page: int = Qu
 #this method dont need limiter because is public.
 @app.get("/api/tracker.js")
 def get_tracker_js():
-    js_path = Path("app/tracker.js")
+    js_path = Path(__file__).parent / "tracker.js"
     js_content = js_path.read_text()
     js_content = js_content.replace("{{API_URL}}", API_URL)
-    # the script is public but /api/track needs the key; injected here for the demo/prospect site
+    # the script is public but /api/track needs the key; injected here so each
+    # self-hosted deployment sends its own API_KEY from .env
     js_content = js_content.replace("{{API_KEY}}", API_KEY)
     return Response(content=js_content, media_type="application/javascript")
 
@@ -154,9 +155,4 @@ if _dashboard_dist.exists():
     app.mount("/", StaticFiles(directory=_dashboard_dist, html=True), name="dashboard")
 else:
     print("WARNING: dashboard/dist not found, run `npm run build` inside /dashboard")
-
-# demo page used to try out the tracker (empresa ficticia, same-origin so requests work)
-_demo_dir = Path(__file__).parent.parent / "demo"
-if _demo_dir.exists():
-    app.mount("/demo", StaticFiles(directory=_demo_dir, html=True), name="demo")
 
