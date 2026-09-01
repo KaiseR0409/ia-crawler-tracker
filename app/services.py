@@ -11,6 +11,9 @@ import os
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
+# separate write-only key injected into the PUBLIC tracker.js script.
+# if not set, falls back to API_KEY (single-key mode).
+TRACKER_KEY = os.getenv("TRACKER_KEY") or API_KEY
 
 auth_scheme = APIKeyHeader(name="Authorization")
 
@@ -49,6 +52,13 @@ def verify_access(request: Request):
     if request.headers.get("Authorization") == API_KEY:
         return True
     raise HTTPException(status_code=401, detail="Not authenticated")
+
+
+# write-only auth for /api/track: only the tracker key (publicly embedded) can
+# record visits; it can never read stats or open the dashboard.
+def verify_tracker_key(token: str = Depends(auth_scheme)):
+    if token != TRACKER_KEY:
+        raise HTTPException(status_code=401, detail="Invalid tracker key")
 
 
 
@@ -93,11 +103,6 @@ def classify_referrer(referrer: str) -> str | None:
         if domain in referrer.lower():
             return provider
     return None
-
-#api key verification function
-def verify_api_key(token: str = Depends(auth_scheme)):
-    if token != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid API Key")
 
 #a function to endpoint stats, this function objective is to return the number of visits in the database
 #and the number of visits per traffic type, and the number of visits per ai provider.

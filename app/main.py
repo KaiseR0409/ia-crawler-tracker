@@ -10,14 +10,15 @@ from fastapi import Request, HTTPException
 from .models import VisitPayload, LoginPayload
 #services imports
 from .services import (
-    classify_ua, classify_referrer, verify_api_key, verify_access,
+    classify_ua, classify_referrer, verify_access, verify_tracker_key,
     get_stats, paginate_rows, create_session, destroy_session, session_valid,
-    SESSION_TTL,
+    SESSION_TTL, TRACKER_KEY,
 )
 #pathlib import Path
 from pathlib import Path
 #slow api imports
 from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 import os
 #load dotenv file
@@ -28,11 +29,17 @@ load_dotenv()
 #api url
 API_URL = os.getenv("API_URL", "http://localhost:5000")
 API_KEY = os.getenv("API_KEY", "")
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+
+if not API_KEY:
+    raise RuntimeError("API_KEY missing: set it in .env (see .env.example)")
 
 
 app = FastAPI(title="AI Traffic Tracker", version="0.1.0")
 
-#this cors is to allow al origins to access, is not secure to production.
+# CORS is wide open *on purpose*: the tracker script runs on any customer page
+# and posts from its own origin. It only carries the write-only tracker key,
+# not cookies. Restrict origins only if you never inject the script elsewhere.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -49,13 +56,12 @@ def startup():
 #limiter
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-
-
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 #post method to add a new track in page
 @app.post("/api/track")
 @limiter.limit("30/minute") # Limit to 30 requests per minute per IP
-def track_visit(request:Request, payload: VisitPayload, _: str = Depends(verify_api_key)):
+def track_visit(request:Request, payload: VisitPayload, _: str = Depends(verify_tracker_key)):
     
     #first we classify the user agent and referrer
     ua_result = classify_ua(payload.user_agent)
@@ -97,16 +103,15 @@ def get_visits(request: Request, _: str = Depends(verify_access), page: int = Qu
     return paginate_rows(page=page, limit=limit)
 
 
-#method to give a tracker.js to a page, it dont need api key, its public, but the track method and get visits method need api key to be used, this is for security reasons.
-#this method dont need limiter because is public.
+#method to give a tracker.js to a page, it is public on purpose: anyone with a
+# tracker on their site needs to fetch it. It embeds only the write-only
+# TRACKER_KEY, which cannot read stats or log into the dashboard.
 @app.get("/api/tracker.js")
 def get_tracker_js():
     js_path = Path(__file__).parent / "tracker.js"
     js_content = js_path.read_text()
     js_content = js_content.replace("{{API_URL}}", API_URL)
-    # the script is public but /api/track needs the key; injected here so each
-    # self-hosted deployment sends its own API_KEY from .env
-    js_content = js_content.replace("{{API_KEY}}", API_KEY)
+    js_content = js_content.replace("{{TRACKER_KEY}}", TRACKER_KEY)
     return Response(content=js_content, media_type="application/javascript")
 
 #method to give a stats of visits, this method need api key to be used, this is for security reasons.
@@ -130,7 +135,7 @@ def login(request: Request, response: Response, payload: LoginPayload):
         httponly=True,
         samesite="lax",
         max_age=int(SESSION_TTL.total_seconds()),
-        secure=False,  # internal http-only deployment; set True behind HTTPS
+        secure=COOKIE_SECURE,  # enable behind HTTPS (COOKIE_SECURE=true)
     )
     return {"status": "ok"}
 

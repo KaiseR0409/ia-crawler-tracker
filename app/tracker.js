@@ -12,7 +12,7 @@ async function trackVisit(user_agent, target_url, referrer) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "{{API_KEY}}"
+                "Authorization": "{{TRACKER_KEY}}"
             },
             body: JSON.stringify(data)
         });
