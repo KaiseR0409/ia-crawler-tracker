@@ -1,7 +1,9 @@
 import json 
+import secrets
+from datetime import datetime, timedelta, timezone
 from .database import get_connection
 from pathlib import Path
-from fastapi import HTTPException, Header, Depends
+from fastapi import HTTPException, Depends, Request
 from fastapi.security import APIKeyHeader
 from dotenv import load_dotenv
 import os
@@ -11,6 +13,42 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 auth_scheme = APIKeyHeader(name="Authorization")
+
+# ponytail: in-memory session store, lost on restart; swap for a DB table/Redis if sessions must survive redeploys
+SESSION_TTL = timedelta(hours=12)
+_sessions: dict[str, datetime] = {}
+
+
+def create_session() -> str:
+    token = secrets.token_urlsafe(32)
+    _sessions[token] = datetime.now(timezone.utc) + SESSION_TTL
+    return token
+
+
+def destroy_session(token: str | None) -> None:
+    if token:
+        _sessions.pop(token, None)
+
+
+def session_valid(token: str | None) -> bool:
+    if not token:
+        return False
+    exp = _sessions.get(token)
+    if not exp:
+        return False
+    if datetime.now(timezone.utc) > exp:
+        _sessions.pop(token, None)
+        return False
+    return True
+
+
+# dashboard endpoints accept either a valid session cookie or the api key
+def verify_access(request: Request):
+    if session_valid(request.cookies.get("session")):
+        return True
+    if request.headers.get("Authorization") == API_KEY:
+        return True
+    raise HTTPException(status_code=401, detail="Not authenticated")
 
 
 

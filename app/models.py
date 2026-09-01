@@ -6,3 +6,7 @@ class VisitPayload(BaseModel):
     target_url: str
     user_agent: str
     referrer: str = ""
+
+
+class LoginPayload(BaseModel):
+    api_key: str
